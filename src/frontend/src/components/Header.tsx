@@ -4,10 +4,7 @@ import { useState } from "react";
 
 const navLinks = [
   { label: "HOME", href: "#home" },
-  { label: "SURPRISE EVENT", href: "#hero" },
-  { label: "GALLERY", href: "#gallery" },
   { label: "OUR STORY", href: "#story" },
-  { label: "MESSAGES", href: "#wishes" },
 ];
 
 export function Header() {
