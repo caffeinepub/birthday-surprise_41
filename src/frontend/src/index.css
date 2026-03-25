@@ -1,0 +1,141 @@
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Dancing+Script:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --radius: 0.375rem;
+
+    /* Warm cream page background #F3EEE4 → oklch ~0.94 0.015 75 */
+    --background: 0.94 0.015 75;
+    --foreground: 0.22 0.03 40;
+
+    /* Card bg #FBF8F2 → oklch ~0.98 0.008 80 */
+    --card: 0.98 0.008 80;
+    --card-foreground: 0.22 0.03 40;
+
+    --popover: 0.98 0.008 80;
+    --popover-foreground: 0.22 0.03 40;
+
+    /* Dusty rose button #B77A74 → oklch ~0.62 0.07 20 */
+    --primary: 0.62 0.07 20;
+    --primary-foreground: 0.97 0.005 75;
+
+    /* Secondary muted */
+    --secondary: 0.9 0.015 70;
+    --secondary-foreground: 0.22 0.03 40;
+
+    /* Muted light taupe #D7C8B8 → oklch ~0.82 0.025 65 */
+    --muted: 0.9 0.012 70;
+    --muted-foreground: 0.46 0.03 40;
+
+    /* Brand accent gold #B08A5E → oklch ~0.63 0.07 65 */
+    --accent: 0.63 0.07 65;
+    --accent-foreground: 0.97 0.005 75;
+
+    --destructive: 0.577 0.245 27.325;
+    --destructive-foreground: 0.985 0 0;
+
+    /* Border taupe #D7C8B8 → oklch ~0.82 0.025 65 */
+    --border: 0.82 0.025 65;
+    --input: 0.82 0.025 65;
+    --ring: 0.62 0.07 20;
+
+    /* Footer bg #6B3C43 → oklch ~0.38 0.07 10 */
+    --footer: 0.38 0.07 10;
+    --footer-foreground: 0.96 0.005 75;
+
+    /* Brand gold accent */
+    --gold: 0.63 0.07 65;
+
+    --chart-1: 0.646 0.222 41.116;
+    --chart-2: 0.6 0.118 184.704;
+    --chart-3: 0.398 0.07 227.392;
+    --chart-4: 0.828 0.189 84.429;
+    --chart-5: 0.769 0.188 70.08;
+    --sidebar: 0.98 0.008 80;
+    --sidebar-foreground: 0.22 0.03 40;
+    --sidebar-primary: 0.62 0.07 20;
+    --sidebar-primary-foreground: 0.97 0.005 75;
+    --sidebar-accent: 0.9 0.012 70;
+    --sidebar-accent-foreground: 0.22 0.03 40;
+    --sidebar-border: 0.82 0.025 65;
+    --sidebar-ring: 0.62 0.07 20;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Cormorant Garamond", Georgia, serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  .font-playfair {
+    font-family: "Playfair Display", Georgia, serif;
+  }
+  .font-dancing {
+    font-family: "Dancing Script", cursive;
+  }
+  .font-cormorant {
+    font-family: "Cormorant Garamond", Georgia, serif;
+  }
+
+  .decorative-border {
+    position: relative;
+  }
+  .decorative-border::before {
+    content: "";
+    position: absolute;
+    inset: 6px;
+    border: 1px solid oklch(var(--border));
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .ornament-corner {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-color: oklch(var(--gold));
+  }
+  .ornament-corner-tl {
+    top: 0;
+    left: 0;
+    border-top: 2px solid;
+    border-left: 2px solid;
+  }
+  .ornament-corner-tr {
+    top: 0;
+    right: 0;
+    border-top: 2px solid;
+    border-right: 2px solid;
+  }
+  .ornament-corner-bl {
+    bottom: 0;
+    left: 0;
+    border-bottom: 2px solid;
+    border-left: 2px solid;
+  }
+  .ornament-corner-br {
+    bottom: 0;
+    right: 0;
+    border-bottom: 2px solid;
+    border-right: 2px solid;
+  }
+
+  .polaroid {
+    background: white;
+    padding: 12px 12px 40px 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.08);
+  }
+}
