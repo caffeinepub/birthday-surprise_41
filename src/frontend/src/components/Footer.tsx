@@ -5,7 +5,7 @@ export function Footer() {
         <div className="text-center">
           <p className="font-dancing text-3xl">Love Always</p>
           <p className="font-cormorant text-sm uppercase tracking-[0.25em] opacity-70 mt-1">
-            A Birthday Surprise
+            Happy Birthday, My Would-Be Hubby
           </p>
         </div>
       </div>

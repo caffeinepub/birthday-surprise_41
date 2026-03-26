@@ -21,8 +21,11 @@ export function Header() {
           <span className="font-cormorant text-xs uppercase tracking-[0.25em] text-muted-foreground">
             Love Always, Kanchan
           </span>
-          <span className="font-playfair text-2xl font-bold text-foreground">
-            Happy Birthday Sumit
+          <span
+            className="font-playfair text-2xl font-bold"
+            style={{ color: "#c0392b" }}
+          >
+            Happy Birthday, My Dear Would-Be Hubby
           </span>
         </div>
         <nav

@@ -1,35 +1,99 @@
 import { Music, Music2 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function MusicPlayer() {
   const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const triedAutoplay = useRef(false);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const tryPlay = () => {
+      if (triedAutoplay.current) return;
+      triedAutoplay.current = true;
+      audio
+        .play()
+        .then(() => setIsPlaying(true))
+        .catch(() => {
+          const playOnInteraction = () => {
+            audio
+              .play()
+              .then(() => {
+                setIsPlaying(true);
+                cleanup();
+              })
+              .catch(() => {});
+          };
+          const cleanup = () => {
+            window.removeEventListener("click", playOnInteraction);
+            window.removeEventListener("scroll", playOnInteraction);
+            window.removeEventListener("keydown", playOnInteraction);
+            window.removeEventListener("touchstart", playOnInteraction);
+          };
+          window.addEventListener("click", playOnInteraction, { once: true });
+          window.addEventListener("scroll", playOnInteraction, { once: true });
+          window.addEventListener("keydown", playOnInteraction, { once: true });
+          window.addEventListener("touchstart", playOnInteraction, {
+            once: true,
+          });
+        });
+    };
+
+    const timer = setTimeout(tryPlay, 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const handleStop = () => {
+      const audio = audioRef.current;
+      if (!audio) return;
+      audio.pause();
+      setIsPlaying(false);
+    };
+    window.addEventListener("stopBackgroundMusic", handleStop);
+    return () => window.removeEventListener("stopBackgroundMusic", handleStop);
+  }, []);
+
+  useEffect(() => {
+    const handleResume = () => {
+      const audio = audioRef.current;
+      if (!audio) return;
+      audio
+        .play()
+        .then(() => setIsPlaying(true))
+        .catch(() => {});
+    };
+    window.addEventListener("resumeBackgroundMusic", handleResume);
+    return () =>
+      window.removeEventListener("resumeBackgroundMusic", handleResume);
+  }, []);
 
   const toggleMusic = () => {
-    setIsPlaying((prev) => !prev);
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (isPlaying) {
+      audio.pause();
+      setIsPlaying(false);
+    } else {
+      audio
+        .play()
+        .then(() => setIsPlaying(true))
+        .catch(() => setIsPlaying(false));
+    }
   };
 
   return (
     <>
-      {/* Hidden YouTube iframe — visually hidden but not display:none so audio plays */}
-      {isPlaying && (
-        <iframe
-          src="https://www.youtube.com/embed/q0SzJKdXBFo?autoplay=1&loop=1&playlist=q0SzJKdXBFo"
-          allow="autoplay"
-          width="1"
-          height="1"
-          style={{
-            position: "fixed",
-            bottom: 0,
-            left: 0,
-            opacity: 0,
-            pointerEvents: "none",
-          }}
-          title="Rehna Hai Tere Dil Mein Instrumental"
-        />
-      )}
-
-      {/* Floating music button */}
+      {/* biome-ignore lint/a11y/useMediaCaption: background music */}
+      <audio
+        ref={audioRef}
+        src="/assets/uploads/rehna_hai_tere_dil_me-019d29e6-2186-769d-ba35-859c2e51894a-1.mp3"
+        loop
+        preload="auto"
+      />
       <div
         data-ocid="music_player.toggle"
         className="fixed bottom-6 right-6 z-50"
@@ -50,7 +114,6 @@ export function MusicPlayer() {
             />
           )}
         </AnimatePresence>
-
         <motion.button
           onClick={toggleMusic}
           whileTap={{ scale: 0.9 }}
@@ -79,8 +142,6 @@ export function MusicPlayer() {
             <Music className="w-6 h-6" />
           )}
         </motion.button>
-
-        {/* Tooltip label */}
         <motion.div
           initial={{ opacity: 0, x: 10 }}
           animate={{ opacity: 1, x: 0 }}

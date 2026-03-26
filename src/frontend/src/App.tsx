@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/sonner";
+import { CakeButton } from "./components/CakeButton";
 import { FirstMeetup } from "./components/FirstMeetup";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
@@ -18,6 +19,7 @@ export default function App() {
           <HeartfeltMessage />
           <FirstMeetup />
           <LoveNotes />
+          <CakeButton />
         </div>
       </main>
       <Footer />
