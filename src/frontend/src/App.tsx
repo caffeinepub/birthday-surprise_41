@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/sonner";
+import { FirstMeetup } from "./components/FirstMeetup";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
 import { HeartfeltMessage } from "./components/HeartfeltMessage";
@@ -14,6 +15,7 @@ export default function App() {
         <Hero />
         <div className="bg-background">
           <HeartfeltMessage />
+          <FirstMeetup />
           <LoveNotes />
         </div>
       </main>

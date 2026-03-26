@@ -3,11 +3,11 @@ import { motion } from "motion/react";
 import { OrnamentedCard } from "./OrnamentedCard";
 
 const notes = [
+  "Zindagi ki raahon mein bhatak rahe the hum, Aap mile toh manzil ka pata mil gaya...",
+  "Aaj aap k din par ek vaada chahti hoon, Kya hamesha ke liye mujhe aap ka saath mil gaya?",
   "Your smile is my favorite thing in the whole world.",
   "Coming home to you is the best part of every single day.",
   "You make ordinary Tuesday evenings feel like magic.",
-  "I fall in love with you a little more every morning.",
-  "The way you laugh at your own jokes is absolutely adorable.",
   "You are my greatest adventure and my coziest home.",
 ];
 
