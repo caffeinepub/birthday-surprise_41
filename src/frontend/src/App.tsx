@@ -5,6 +5,7 @@ import { Header } from "./components/Header";
 import { HeartfeltMessage } from "./components/HeartfeltMessage";
 import { Hero } from "./components/Hero";
 import { LoveNotes } from "./components/LoveNotes";
+import { MusicPlayer } from "./components/MusicPlayer";
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
         </div>
       </main>
       <Footer />
+      <MusicPlayer />
     </div>
   );
 }

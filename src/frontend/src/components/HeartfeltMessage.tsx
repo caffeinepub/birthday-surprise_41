@@ -139,7 +139,7 @@ export function HeartfeltMessage() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.7 }}
-        className="max-w-2xl mx-auto"
+        className="max-w-2xl mx-auto mb-8"
       >
         <OrnamentedCard className="text-center">
           {/* Title block */}
@@ -262,6 +262,48 @@ export function HeartfeltMessage() {
                 </motion.div>
               )}
             </AnimatePresence>
+          </div>
+        </OrnamentedCard>
+      </motion.div>
+
+      {/* New poem: Mere pyaar mein */}
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.7, delay: 0.1 }}
+        className="max-w-2xl mx-auto"
+      >
+        <OrnamentedCard className="text-center">
+          <span className="inline-block text-primary text-2xl mb-3">♥</span>
+          <div className="space-y-3">
+            <p className="font-dancing text-xl text-foreground/85 leading-relaxed">
+              Mere pyaar mein aur bakiyon ke pyaar mein bahut fark hai...
+            </p>
+            <div className="w-12 h-px bg-gold/50 mx-auto" />
+            <p className="font-dancing text-xl text-foreground/80 leading-relaxed">
+              Kyunki log roop dekhte hain...
+            </p>
+            <p className="font-dancing text-xl text-primary leading-relaxed">
+              Aur main dil.
+            </p>
+            <div className="w-12 h-px bg-gold/50 mx-auto" />
+            <p className="font-dancing text-xl text-foreground/80 leading-relaxed">
+              Log sapne dekhte hain...
+            </p>
+            <p className="font-dancing text-xl text-primary leading-relaxed">
+              Aur main tumhe.
+            </p>
+            <div className="w-12 h-px bg-gold/50 mx-auto" />
+            <p className="font-dancing text-xl text-foreground/80 leading-relaxed">
+              Ek fark aur yeh bhi hai...
+            </p>
+            <p className="font-dancing text-xl text-foreground/80 leading-relaxed">
+              Ki log poori duniya dekhte hain...
+            </p>
+            <p className="font-dancing text-2xl text-primary leading-relaxed font-bold">
+              Aur meri poori duniya... sirf tum... ♥
+            </p>
           </div>
         </OrnamentedCard>
       </motion.div>
