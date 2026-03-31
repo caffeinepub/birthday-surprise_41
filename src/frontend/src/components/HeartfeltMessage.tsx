@@ -10,6 +10,7 @@ function getRandomNoPosition() {
 }
 
 const PARTICLES = Array.from({ length: 12 }, (_, i) => i);
+const FLOAT_HEARTS = Array.from({ length: 14 }, (_, i) => i);
 
 function HeartBurst({ active }: { active: boolean }) {
   if (!active) return null;
@@ -39,8 +40,223 @@ function HeartBurst({ active }: { active: boolean }) {
   );
 }
 
+function RomanticPopup({ onClose }: { onClose: () => void }) {
+  return (
+    <motion.div
+      key="romantic-popup-overlay"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.4 }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+      style={{
+        background: "rgba(10, 0, 20, 0.82)",
+        backdropFilter: "blur(8px)",
+      }}
+      onClick={onClose}
+    >
+      {/* Floating hearts background */}
+      <div
+        className="absolute inset-0 overflow-hidden pointer-events-none"
+        aria-hidden
+      >
+        {FLOAT_HEARTS.map((i) => {
+          const left = 5 + ((i * 6.5) % 92);
+          const delay = (i * 0.43) % 4;
+          const duration = 4 + ((i * 0.6) % 4);
+          const size = 14 + ((i * 7) % 22);
+          return (
+            <motion.span
+              key={i}
+              initial={{ y: "110vh", opacity: 0.6 }}
+              animate={{ y: "-10vh", opacity: [0.6, 0.9, 0.4, 0] }}
+              transition={{
+                duration,
+                delay,
+                repeat: Number.POSITIVE_INFINITY,
+                ease: "easeInOut",
+              }}
+              className="absolute text-pink-300 select-none"
+              style={{ left: `${left}%`, bottom: 0, fontSize: size }}
+            >
+              ♥
+            </motion.span>
+          );
+        })}
+      </div>
+
+      {/* Card */}
+      <motion.div
+        initial={{ scale: 0.7, opacity: 0, y: 40 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.7, opacity: 0, y: 40 }}
+        transition={{ type: "spring", stiffness: 280, damping: 22 }}
+        onClick={(e) => e.stopPropagation()}
+        className="relative max-w-md w-full rounded-3xl text-center overflow-hidden"
+        style={{
+          background:
+            "linear-gradient(145deg, oklch(0.18 0.06 5), oklch(0.14 0.04 340))",
+          border: "1.5px solid oklch(0.72 0.18 40 / 0.5)",
+          boxShadow:
+            "0 0 60px oklch(0.65 0.28 5 / 0.35), 0 0 120px oklch(0.55 0.22 5 / 0.15), inset 0 0 40px oklch(0.72 0.18 40 / 0.07)",
+          padding: "2.5rem 2rem",
+        }}
+      >
+        {/* Close button */}
+        <button
+          type="button"
+          data-ocid="romantic_popup.close_button"
+          onClick={onClose}
+          className="absolute top-4 right-4 text-pink-300 hover:text-pink-100 transition-colors text-xl leading-none font-bold"
+          aria-label="Close"
+        >
+          ×
+        </button>
+
+        {/* Golden divider top */}
+        <div className="flex items-center justify-center gap-2 mb-5">
+          <div
+            className="h-px flex-1"
+            style={{
+              background:
+                "linear-gradient(to right, transparent, oklch(0.72 0.18 40 / 0.7))",
+            }}
+          />
+          <span className="text-yellow-400 text-lg">♥</span>
+          <div
+            className="h-px flex-1"
+            style={{
+              background:
+                "linear-gradient(to left, transparent, oklch(0.72 0.18 40 / 0.7))",
+            }}
+          />
+        </div>
+
+        {/* Main message */}
+        <motion.p
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+          className="font-dancing text-4xl font-bold mb-3"
+          style={{
+            color: "oklch(0.88 0.18 5)",
+            textShadow: "0 2px 20px oklch(0.65 0.28 5 / 0.5)",
+          }}
+        >
+          Haan, hamesha ke liye...
+        </motion.p>
+
+        <motion.p
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35, duration: 0.6 }}
+          className="font-dancing text-2xl mb-4"
+          style={{ color: "oklch(0.82 0.12 10)" }}
+        >
+          Aap ka saath hai aur rahega ♥
+        </motion.p>
+
+        {/* Ornament divider */}
+        <motion.div
+          initial={{ opacity: 0, scaleX: 0 }}
+          animate={{ opacity: 1, scaleX: 1 }}
+          transition={{ delay: 0.45, duration: 0.5 }}
+          className="flex items-center justify-center gap-3 my-5"
+        >
+          <div
+            className="h-px w-16"
+            style={{
+              background:
+                "linear-gradient(to right, transparent, oklch(0.72 0.18 40 / 0.6))",
+            }}
+          />
+          <span className="text-yellow-400">✦ ♥ ✦</span>
+          <div
+            className="h-px w-16"
+            style={{
+              background:
+                "linear-gradient(to left, transparent, oklch(0.72 0.18 40 / 0.6))",
+            }}
+          />
+        </motion.div>
+
+        {/* Romantic lines */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.55, duration: 0.6 }}
+          className="space-y-3"
+        >
+          <p
+            className="font-dancing text-xl"
+            style={{ color: "oklch(0.78 0.10 10)" }}
+          >
+            Aap mere sapno ki duniya hain...
+          </p>
+          <p
+            className="font-dancing text-xl"
+            style={{ color: "oklch(0.78 0.10 10)" }}
+          >
+            Har pal, har lamha... bas aap
+          </p>
+          <p
+            className="font-dancing text-2xl font-bold mt-3"
+            style={{
+              color: "oklch(0.90 0.20 5)",
+              textShadow: "0 2px 12px oklch(0.65 0.28 5 / 0.4)",
+            }}
+          >
+            I Love You, Sumit...
+          </p>
+          <p
+            className="font-dancing text-xl"
+            style={{ color: "oklch(0.82 0.14 5)" }}
+          >
+            Aaj bhi, kal bhi, hamesha ♥
+          </p>
+        </motion.div>
+
+        {/* Bottom divider */}
+        <div className="flex items-center justify-center gap-2 mt-6">
+          <div
+            className="h-px flex-1"
+            style={{
+              background:
+                "linear-gradient(to right, transparent, oklch(0.72 0.18 40 / 0.7))",
+            }}
+          />
+          <span className="text-yellow-400 text-lg">♥</span>
+          <div
+            className="h-px flex-1"
+            style={{
+              background:
+                "linear-gradient(to left, transparent, oklch(0.72 0.18 40 / 0.7))",
+            }}
+          />
+        </div>
+
+        <button
+          type="button"
+          data-ocid="romantic_popup.close_button"
+          onClick={onClose}
+          className="mt-5 px-6 py-2 rounded-full font-dancing text-lg font-semibold transition-all duration-200"
+          style={{
+            background:
+              "linear-gradient(135deg, oklch(0.55 0.22 5), oklch(0.45 0.18 340))",
+            color: "oklch(0.96 0.03 5)",
+            boxShadow: "0 4px 20px oklch(0.55 0.22 5 / 0.4)",
+          }}
+        >
+          ♥ Close
+        </button>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 export function HeartfeltMessage() {
   const [yesClicked, setYesClicked] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
   const [burstKey, setBurstKey] = useState(0);
   const [showBurst, setShowBurst] = useState(false);
   const [noAttempts, setNoAttempts] = useState(0);
@@ -61,6 +277,7 @@ export function HeartfeltMessage() {
 
   const handleYes = () => {
     setYesClicked(true);
+    setShowPopup(true);
     setNoSurrendered(false);
     setBurstKey((k) => k + 1);
     setShowBurst(true);
@@ -242,26 +459,6 @@ export function HeartfeltMessage() {
                 </motion.button>
               )}
             </div>
-
-            <AnimatePresence>
-              {yesClicked && (
-                <motion.div
-                  key="yes-message"
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.6 }}
-                  className="mt-5"
-                >
-                  <p className="font-dancing text-primary text-xl leading-relaxed">
-                    Haan, hamesha ke liye...
-                  </p>
-                  <p className="font-dancing text-primary text-xl leading-relaxed">
-                    Aap ka saath hai aur rahega ♥
-                  </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
         </OrnamentedCard>
       </motion.div>
@@ -292,7 +489,7 @@ export function HeartfeltMessage() {
               Log sapne dekhte hain...
             </p>
             <p className="font-dancing text-xl text-primary leading-relaxed">
-              Aur main tumhe.
+              Aur main aap ko.
             </p>
             <div className="w-12 h-px bg-gold/50 mx-auto" />
             <p className="font-dancing text-xl text-foreground/80 leading-relaxed">
@@ -302,11 +499,16 @@ export function HeartfeltMessage() {
               Ki log poori duniya dekhte hain...
             </p>
             <p className="font-dancing text-2xl text-primary leading-relaxed font-bold">
-              Aur meri poori duniya... sirf tum... ♥
+              Aur meri poori duniya... sirf aap... ♥
             </p>
           </div>
         </OrnamentedCard>
       </motion.div>
+
+      {/* Romantic Popup */}
+      <AnimatePresence>
+        {showPopup && <RomanticPopup onClose={() => setShowPopup(false)} />}
+      </AnimatePresence>
     </section>
   );
 }

@@ -5,10 +5,12 @@ import { OrnamentedCard } from "./OrnamentedCard";
 const notes = [
   "Zindagi ki raahon mein bhatak rahe the hum, Aap mile toh manzil ka pata mil gaya...",
   "Aaj aap k din par ek vaada chahti hoon, Kya hamesha ke liye mujhe aap ka saath mil gaya?",
-  "Your smile is my favorite thing in the whole world.",
-  "Coming home to you is the best part of every single day.",
-  "You make ordinary Tuesday evenings feel like magic.",
-  "You are my greatest adventure and my coziest home.",
+  "Aap ki ek muskaan meri poori duniya roshan kar deti hai — aur main chahti hoon ki aap hamesha muskurate rahein.",
+  "Jab bhi main kho jaati hoon, aap ki yaad mujhe raasta dikhati hai — aap meri manzil bhi hain, aur saathi bhi.",
+  "Aap ke bina yeh zindagi adhoori thi... aap aaye aur sab mukammal ho gaya. ♥",
+  "Main aap se pyaar karti hoon — aaj bhi, kal bhi, aur jab tak saansein hain, hamesha.",
+  "Aap meri sabse khoobsurat dua hain jo kabhi poori hui. Shukriya mere zindagi mein aane ke liye.",
+  "Har subah aap ki soch ke saath shuru hoti hai, aur har raat aap ki yaad ke saath khatam — aur isi mein meri khushi hai.",
 ];
 
 export function LoveNotes() {
