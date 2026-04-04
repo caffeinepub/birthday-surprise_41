@@ -9,7 +9,7 @@ const notes = [
   },
   {
     id: "poem1",
-    text: "Zindagi ki raahon mein bhatak rahe the hum,\nAap mile toh manzil ka pata mil gaya...\n\nAaj aap k din par ek vaada chahti hoon,\nKya hamesha ke liye mujhe aap ka saath mil gaya? \u2665",
+    text: "Aap se milna ek khoobsurat itefaaq nahi tha... yeh toh qismat ka likha hua tha. Aap mere dil ka woh hissa hain jo hamesha kho jaata tha \u2014 ab mila toh kahin nahi jaane dunga. \u2665",
   },
   {
     id: "note3",
