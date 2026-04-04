@@ -5,45 +5,51 @@ import { useEffect, useRef, useState } from "react";
 export function MusicPlayer() {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const triedAutoplay = useRef(false);
+  const unlockedRef = useRef(false);
 
+  // Unlock + autoplay on first user interaction (mobile-safe)
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const tryPlay = () => {
-      if (triedAutoplay.current) return;
-      triedAutoplay.current = true;
-      audio
-        .play()
-        .then(() => setIsPlaying(true))
-        .catch(() => {
-          const playOnInteraction = () => {
-            audio
-              .play()
-              .then(() => {
-                setIsPlaying(true);
-                cleanup();
-              })
-              .catch(() => {});
-          };
-          const cleanup = () => {
-            window.removeEventListener("click", playOnInteraction);
-            window.removeEventListener("scroll", playOnInteraction);
-            window.removeEventListener("keydown", playOnInteraction);
-            window.removeEventListener("touchstart", playOnInteraction);
-          };
-          window.addEventListener("click", playOnInteraction, { once: true });
-          window.addEventListener("scroll", playOnInteraction, { once: true });
-          window.addEventListener("keydown", playOnInteraction, { once: true });
-          window.addEventListener("touchstart", playOnInteraction, {
-            once: true,
+    const unlock = () => {
+      if (unlockedRef.current) return;
+      unlockedRef.current = true;
+
+      // Must call play() synchronously inside the event handler for iOS
+      const promise = audio.play();
+      if (promise !== undefined) {
+        promise
+          .then(() => setIsPlaying(true))
+          .catch(() => {
+            // Silently ignore -- user can tap the button manually
           });
-        });
+      } else {
+        setIsPlaying(true);
+      }
+
+      cleanup();
     };
 
-    const timer = setTimeout(tryPlay, 500);
-    return () => clearTimeout(timer);
+    const cleanup = () => {
+      document.removeEventListener("touchend", unlock);
+      document.removeEventListener("click", unlock);
+    };
+
+    // Try immediate autoplay first (works on desktop)
+    audio
+      .play()
+      .then(() => {
+        unlockedRef.current = true;
+        setIsPlaying(true);
+      })
+      .catch(() => {
+        // Blocked by browser -- wait for user gesture
+        document.addEventListener("touchend", unlock, { passive: true });
+        document.addEventListener("click", unlock);
+      });
+
+    return cleanup;
   }, []);
 
   useEffect(() => {
@@ -74,14 +80,24 @@ export function MusicPlayer() {
   const toggleMusic = () => {
     const audio = audioRef.current;
     if (!audio) return;
+
     if (isPlaying) {
       audio.pause();
       setIsPlaying(false);
     } else {
-      audio
-        .play()
-        .then(() => setIsPlaying(true))
-        .catch(() => setIsPlaying(false));
+      // Call play() directly in onClick -- guaranteed user gesture on mobile
+      const promise = audio.play();
+      if (promise !== undefined) {
+        promise
+          .then(() => {
+            unlockedRef.current = true;
+            setIsPlaying(true);
+          })
+          .catch(() => setIsPlaying(false));
+      } else {
+        unlockedRef.current = true;
+        setIsPlaying(true);
+      }
     }
   };
 
@@ -93,6 +109,7 @@ export function MusicPlayer() {
         src="/assets/uploads/rehna_hai_tere_dil_me-019d29e6-2186-769d-ba35-859c2e51894a-1.mp3"
         loop
         preload="auto"
+        playsInline
       />
       <div
         data-ocid="music_player.toggle"

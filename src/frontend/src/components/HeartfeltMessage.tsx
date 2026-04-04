@@ -305,18 +305,21 @@ export function HeartfeltMessage() {
               My dearest Sumit,
             </p>
             <p className="font-cormorant text-lg leading-relaxed text-foreground/80 mb-4">
-              From the moment you walked into my life, you turned ordinary
-              moments into extraordinary memories. Your laughter is my favorite
-              melody, and your arms are my safest place in this world.
+              Jab se aap mere zindagi mein aaye hain, har subah khoobsurat lagne
+              lagi hai. Aap ki muskaan meri sabse badi daulat hai, aur aap ka
+              saath meri sabse badi zaroorat — ek zaroorat jo koi lafz poori
+              tarah bayan nahi kar sakta.
             </p>
             <p className="font-cormorant text-lg leading-relaxed text-foreground/80 mb-4">
-              On this special day, I want you to know how deeply you are loved.
-              Not just by me, but by everyone whose life you have touched. You
-              are kind, brave, and endlessly wonderful.
+              Aaj is khaas din par, main sirf itna kehna chahti hoon ki aap jo
+              hain — woh duniya mein koi nahi. Aap ki aankhen mein jo roshan
+              hai, woh mujhe roz naya jeena sikhati hai. Aap ka hona hi meri
+              sabse badi khushi hai.
             </p>
             <p className="font-cormorant text-lg leading-relaxed text-foreground/80 mb-6">
-              Here's to another year of adventures, midnight laughs, and quiet
-              mornings together. I love you more than words can say.
+              Har sapna ab aap ke saath dekhna chahti hoon... har raat ki neend
+              aap ki baahon mein, har subah aap ki awaaz se. Aap hain toh sab
+              hai, aap nahi toh kuch nahi. Happy Birthday, mere pyaar. ♥
             </p>
             <p className="font-dancing text-2xl text-primary">
               Forever yours, Kanchan ♥

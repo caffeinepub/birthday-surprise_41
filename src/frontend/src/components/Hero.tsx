@@ -104,8 +104,8 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="font-cormorant text-white/85 text-xl leading-relaxed"
           >
-            Every moment with you is a treasure I hold dear. Today, I celebrate
-            the most wonderful person in my world. — With love, Kanchan
+            Aap mere dil ki har dhadkan mein hain... aaj aur hamesha. Yeh din
+            sirf aap ke liye hai, mere pyaar. — With love, Kanchan ♥
           </motion.p>
         </div>
       </div>
