@@ -97,7 +97,7 @@ function RomanticPopup({ onClose }: { onClose: () => void }) {
       {/* biome-ignore lint/a11y/useMediaCaption: surprise audio */}
       <audio
         ref={surpriseAudioRef}
-        src="/assets/uploads/whatsapp_audio_2026-04-06_at_12.19.33_pm-019d619b-7a7c-72a3-ad6f-3d627b609110.mp4"
+        src="/assets/whatsapp_audio_2026-04-06_at_12.19.33_pm-019d61a6-68f5-7028-825a-c5acee993653.mp4"
         preload="auto"
         playsInline
       />
