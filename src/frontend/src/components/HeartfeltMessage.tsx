@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { OrnamentedCard } from "./OrnamentedCard";
 
 function getRandomNoPosition() {
@@ -41,6 +41,44 @@ function HeartBurst({ active }: { active: boolean }) {
 }
 
 function RomanticPopup({ onClose }: { onClose: () => void }) {
+  const [surprisePlaying, setSurprisePlaying] = useState(false);
+  const [surpriseRevealed, setSurpriseRevealed] = useState(false);
+  const surpriseAudioRef = useRef<HTMLAudioElement>(null);
+
+  const handleSurprise = () => {
+    const audio = surpriseAudioRef.current;
+    if (!audio) return;
+    setSurpriseRevealed(true);
+    if (!surprisePlaying) {
+      // Stop background music
+      window.dispatchEvent(new CustomEvent("stopBackgroundMusic"));
+      const p = audio.play();
+      if (p !== undefined) {
+        p.then(() => setSurprisePlaying(true)).catch(() => {});
+      } else {
+        setSurprisePlaying(true);
+      }
+    } else {
+      audio.pause();
+      audio.currentTime = 0;
+      setSurprisePlaying(false);
+      // Resume background music
+      window.dispatchEvent(new CustomEvent("resumeBackgroundMusic"));
+    }
+  };
+
+  const handleClose = () => {
+    const audio = surpriseAudioRef.current;
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+    setSurprisePlaying(false);
+    // Resume background music
+    window.dispatchEvent(new CustomEvent("resumeBackgroundMusic"));
+    onClose();
+  };
+
   return (
     <motion.div
       key="romantic-popup-overlay"
@@ -53,8 +91,17 @@ function RomanticPopup({ onClose }: { onClose: () => void }) {
         background: "rgba(10, 0, 20, 0.82)",
         backdropFilter: "blur(8px)",
       }}
-      onClick={onClose}
+      onClick={handleClose}
     >
+      {/* Hidden surprise audio */}
+      {/* biome-ignore lint/a11y/useMediaCaption: surprise audio */}
+      <audio
+        ref={surpriseAudioRef}
+        src="/assets/uploads/whatsapp_audio_2026-04-06_at_12.19.33_pm-019d619b-7a7c-72a3-ad6f-3d627b609110.mp4"
+        preload="auto"
+        playsInline
+      />
+
       {/* Floating hearts background */}
       <div
         className="absolute inset-0 overflow-hidden pointer-events-none"
@@ -102,11 +149,11 @@ function RomanticPopup({ onClose }: { onClose: () => void }) {
           padding: "2.5rem 2rem",
         }}
       >
-        {/* Close button */}
+        {/* Close button top-right */}
         <button
           type="button"
           data-ocid="romantic_popup.close_button"
-          onClick={onClose}
+          onClick={handleClose}
           className="absolute top-4 right-4 text-pink-300 hover:text-pink-100 transition-colors text-xl leading-none font-bold"
           aria-label="Close"
         >
@@ -216,6 +263,68 @@ function RomanticPopup({ onClose }: { onClose: () => void }) {
           </p>
         </motion.div>
 
+        {/* Surprise button */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7, duration: 0.5 }}
+          className="mt-6"
+        >
+          <motion.button
+            type="button"
+            data-ocid="romantic_popup.surprise_button"
+            onClick={handleSurprise}
+            whileTap={{ scale: 0.93 }}
+            whileHover={{ scale: 1.06 }}
+            animate={
+              surprisePlaying
+                ? {
+                    boxShadow: [
+                      "0 0 12px oklch(0.72 0.22 40 / 0.5)",
+                      "0 0 28px oklch(0.72 0.22 40 / 0.9)",
+                      "0 0 12px oklch(0.72 0.22 40 / 0.5)",
+                    ],
+                  }
+                : {}
+            }
+            transition={
+              surprisePlaying
+                ? {
+                    duration: 1.4,
+                    repeat: Number.POSITIVE_INFINITY,
+                    ease: "easeInOut",
+                  }
+                : {}
+            }
+            className="px-7 py-2.5 rounded-full font-dancing text-lg font-semibold transition-all duration-200"
+            style={{
+              background: surprisePlaying
+                ? "linear-gradient(135deg, oklch(0.55 0.22 40), oklch(0.45 0.18 60))"
+                : "linear-gradient(135deg, oklch(0.72 0.22 40), oklch(0.60 0.20 55))",
+              color: "oklch(0.10 0.02 5)",
+              boxShadow: "0 4px 18px oklch(0.65 0.20 40 / 0.45)",
+            }}
+          >
+            {surprisePlaying ? "🎵 Playing... Pause" : "🎁 Surprise for You!"}
+          </motion.button>
+
+          {/* Reveal message after clicking surprise */}
+          <AnimatePresence>
+            {surpriseRevealed && (
+              <motion.p
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.4 }}
+                className="font-dancing text-base mt-3"
+                style={{ color: "oklch(0.78 0.12 40)" }}
+              >
+                ✨ Yeh sirf aap ke liye hai, Sumit... ♥
+              </motion.p>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
         {/* Bottom divider */}
         <div className="flex items-center justify-center gap-2 mt-6">
           <div
@@ -238,7 +347,7 @@ function RomanticPopup({ onClose }: { onClose: () => void }) {
         <button
           type="button"
           data-ocid="romantic_popup.close_button"
-          onClick={onClose}
+          onClick={handleClose}
           className="mt-5 px-6 py-2 rounded-full font-dancing text-lg font-semibold transition-all duration-200"
           style={{
             background:
