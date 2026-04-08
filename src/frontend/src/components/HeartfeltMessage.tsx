@@ -325,8 +325,27 @@ function RomanticPopup({ onClose }: { onClose: () => void }) {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7, duration: 0.5 }}
-          className="mt-6"
+          className="mt-6 flex flex-col items-center gap-3"
         >
+          {/* Separator before surprise button */}
+          <div className="flex items-center gap-2 w-full">
+            <div
+              className="h-px flex-1"
+              style={{
+                background:
+                  "linear-gradient(to right, transparent, oklch(0.72 0.18 40 / 0.4))",
+              }}
+            />
+            <span className="text-yellow-400 text-xs">✦</span>
+            <div
+              className="h-px flex-1"
+              style={{
+                background:
+                  "linear-gradient(to left, transparent, oklch(0.72 0.18 40 / 0.4))",
+              }}
+            />
+          </div>
+
           <motion.button
             type="button"
             data-ocid="romantic_popup.surprise_button"
@@ -342,24 +361,27 @@ function RomanticPopup({ onClose }: { onClose: () => void }) {
                       "0 0 12px oklch(0.72 0.22 40 / 0.5)",
                     ],
                   }
-                : {}
-            }
-            transition={
-              surprisePlaying
-                ? {
-                    duration: 1.4,
-                    repeat: Number.POSITIVE_INFINITY,
-                    ease: "easeInOut",
+                : {
+                    boxShadow: [
+                      "0 0 8px oklch(0.72 0.22 40 / 0.3)",
+                      "0 0 20px oklch(0.72 0.22 40 / 0.6)",
+                      "0 0 8px oklch(0.72 0.22 40 / 0.3)",
+                    ],
                   }
-                : {}
             }
-            className="px-7 py-2.5 rounded-full font-dancing text-lg font-semibold transition-all duration-200"
+            transition={{
+              duration: surprisePlaying ? 1.4 : 2.0,
+              repeat: Number.POSITIVE_INFINITY,
+              ease: "easeInOut",
+            }}
+            className="px-8 py-3 rounded-full font-dancing text-xl font-bold transition-all duration-200"
             style={{
               background: surprisePlaying
                 ? "linear-gradient(135deg, oklch(0.55 0.22 40), oklch(0.45 0.18 60))"
-                : "linear-gradient(135deg, oklch(0.72 0.22 40), oklch(0.60 0.20 55))",
-              color: "oklch(0.10 0.02 5)",
-              boxShadow: "0 4px 18px oklch(0.65 0.20 40 / 0.45)",
+                : "linear-gradient(135deg, oklch(0.78 0.24 45), oklch(0.65 0.22 55))",
+              color: "oklch(0.08 0.02 5)",
+              border: "2px solid oklch(0.85 0.20 50 / 0.7)",
+              letterSpacing: "0.02em",
             }}
           >
             {surprisePlaying ? "🎵 Playing... Pause" : "🎁 Surprise for You!"}
@@ -373,8 +395,8 @@ function RomanticPopup({ onClose }: { onClose: () => void }) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.4 }}
-                className="font-dancing text-base mt-3"
-                style={{ color: "oklch(0.78 0.12 40)" }}
+                className="font-dancing text-base mt-1"
+                style={{ color: "oklch(0.82 0.14 45)" }}
               >
                 ✨ Yeh sirf aap ke liye hai, Sumit... ♥
               </motion.p>
