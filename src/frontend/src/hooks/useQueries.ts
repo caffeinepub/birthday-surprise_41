@@ -1,44 +1,32 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Wish } from "../backend.d";
-import { useActor } from "./useActor";
+// No backend methods are used in this app — all content is static.
+// Stub hooks are kept to satisfy BirthdayWishes component imports.
+import { useMutation, useQuery } from "@tanstack/react-query";
 
-export function useGetAllWishes() {
-  const { actor, isFetching } = useActor();
-  return useQuery<Wish[]>({
-    queryKey: ["wishes"],
-    queryFn: async () => {
-      if (!actor) return [];
-      return actor.getAllWishes();
-    },
-    enabled: !!actor && !isFetching,
-  });
+interface Wish {
+  name: string;
+  message: string;
 }
 
-export function useGetBirthdayDate() {
-  const { actor, isFetching } = useActor();
-  return useQuery<string>({
-    queryKey: ["birthdayDate"],
-    queryFn: async () => {
-      if (!actor) return "";
-      return actor.getBirthdayDate();
-    },
-    enabled: !!actor && !isFetching,
+export function useGetAllWishes() {
+  return useQuery<Wish[]>({
+    queryKey: ["wishes"],
+    queryFn: async () => [],
+    enabled: false,
   });
 }
 
 export function useAddWish() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({
-      name,
-      message,
-    }: { name: string; message: string }) => {
-      if (!actor) throw new Error("Actor not ready");
-      return actor.addWish(name, message);
+    mutationFn: async (_data: { name: string; message: string }) => {
+      // no-op stub
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["wishes"] });
-    },
+  });
+}
+
+export function useGetBirthdayDate() {
+  return useQuery<string>({
+    queryKey: ["birthdayDate"],
+    queryFn: async () => "",
+    enabled: false,
   });
 }

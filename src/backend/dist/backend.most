@@ -1,0 +1,13 @@
+// Version: 1.0.0
+type Nat__490723111 = Nat__920180692;
+type Nat__920180692 = Nat;
+type Wish__1052207161 = {message : Text; name : Text};
+actor {
+  stable var birthdayDate : Text;
+  stable wishes :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?Wish__1052207161]];
+      var elementIndex : Nat__490723111
+    }
+};

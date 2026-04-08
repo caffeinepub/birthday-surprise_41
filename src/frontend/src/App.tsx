@@ -1,6 +1,7 @@
 import { Toaster } from "@/components/ui/sonner";
 import { CakeButton } from "./components/CakeButton";
 import { FirstMeetup } from "./components/FirstMeetup";
+import { FirstProposal } from "./components/FirstProposal";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
 import { HeartfeltMessage } from "./components/HeartfeltMessage";
@@ -19,6 +20,7 @@ export default function App() {
         <div className="bg-background">
           <HeartfeltMessage />
           <FirstMeetup />
+          <FirstProposal />
           <LoveNotes />
           <QuestionAnswer />
           <CakeButton />

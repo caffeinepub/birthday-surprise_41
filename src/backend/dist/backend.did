@@ -1,0 +1,12 @@
+type Wish = 
+ record {
+   message: text;
+   name: text;
+ };
+service : {
+  addWish: (name: text, message: text) -> ();
+  getAllWishes: () -> (vec Wish) query;
+  getBirthdayDate: () -> (text) query;
+  getWish: (name: text) -> (Wish) query;
+  setBirthdayDate: (newDate: text) -> ();
+}
