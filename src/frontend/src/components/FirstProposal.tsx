@@ -74,7 +74,7 @@ export function FirstProposal() {
             style={{ maxWidth: "520px" }}
           >
             <img
-              src="/assets/uploads/whatsapp_image_2026-04-08_at_8.15.55_pm-019d6da8-d1ca-70d5-a180-dec13b645e7b.jpeg"
+              src="/assets/uploads/whatsapp_image_2026-04-08_at_8.15.55_pm-019d6e0a-4249-7511-a771-738e75ff0b55.jpeg"
               alt="Our first proposal — WhatsApp chat screenshot"
               className="w-full object-cover block"
             />
