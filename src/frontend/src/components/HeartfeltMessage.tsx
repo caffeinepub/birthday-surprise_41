@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { OrnamentedCard } from "./OrnamentedCard";
 
 function getRandomNoPosition() {
@@ -11,6 +11,99 @@ function getRandomNoPosition() {
 
 const PARTICLES = Array.from({ length: 12 }, (_, i) => i);
 const FLOAT_HEARTS = Array.from({ length: 14 }, (_, i) => i);
+
+// Romantic pentatonic melody: C4, E4, G4, A4, C5, A4, G4, E4
+const MELODY_NOTES = [
+  261.63, 329.63, 392.0, 440.0, 523.25, 440.0, 392.0, 329.63,
+];
+const NOTE_DURATION = 0.42;
+const NOTE_GAIN = 0.09;
+
+function createRomanticMelody(audioCtx: AudioContext): () => void {
+  let stopped = false;
+  let noteIndex = 0;
+  let nextNoteTime = audioCtx.currentTime + 0.05;
+
+  const masterGain = audioCtx.createGain();
+  masterGain.gain.setValueAtTime(NOTE_GAIN, audioCtx.currentTime);
+  masterGain.connect(audioCtx.destination);
+
+  // Soft reverb via convolver simulation using a delay node
+  const delay = audioCtx.createDelay(0.5);
+  delay.delayTime.value = 0.28;
+  const delayGain = audioCtx.createGain();
+  delayGain.gain.value = 0.22;
+  delay.connect(delayGain);
+  delayGain.connect(masterGain);
+
+  function scheduleNote() {
+    if (stopped) return;
+
+    const freq = MELODY_NOTES[noteIndex % MELODY_NOTES.length];
+    noteIndex++;
+
+    const osc = audioCtx.createOscillator();
+    const noteGain = audioCtx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(freq, nextNoteTime);
+
+    // Also add a faint octave for warmth
+    const osc2 = audioCtx.createOscillator();
+    osc2.type = "sine";
+    osc2.frequency.setValueAtTime(freq * 2, nextNoteTime);
+    const osc2Gain = audioCtx.createGain();
+    osc2Gain.gain.setValueAtTime(0.025, nextNoteTime);
+    osc2.connect(osc2Gain);
+    osc2Gain.connect(masterGain);
+
+    // Soft envelope: quick attack, long decay/release
+    noteGain.gain.setValueAtTime(0, nextNoteTime);
+    noteGain.gain.linearRampToValueAtTime(1.0, nextNoteTime + 0.04);
+    noteGain.gain.linearRampToValueAtTime(
+      0.7,
+      nextNoteTime + NOTE_DURATION * 0.4,
+    );
+    noteGain.gain.linearRampToValueAtTime(
+      0,
+      nextNoteTime + NOTE_DURATION * 0.95,
+    );
+
+    osc.connect(noteGain);
+    noteGain.connect(masterGain);
+    noteGain.connect(delay);
+
+    osc.start(nextNoteTime);
+    osc.stop(nextNoteTime + NOTE_DURATION);
+    osc2.start(nextNoteTime);
+    osc2.stop(nextNoteTime + NOTE_DURATION);
+
+    nextNoteTime += NOTE_DURATION;
+
+    // Schedule next note before this one ends
+    const lookahead = nextNoteTime - audioCtx.currentTime;
+    const scheduleDelay = Math.max(0, (lookahead - 0.1) * 1000);
+    setTimeout(() => {
+      if (!stopped) scheduleNote();
+    }, scheduleDelay);
+  }
+
+  scheduleNote();
+
+  return () => {
+    stopped = true;
+    masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+    setTimeout(() => {
+      try {
+        masterGain.disconnect();
+        delay.disconnect();
+        delayGain.disconnect();
+      } catch (_) {
+        // already disconnected
+      }
+    }, 400);
+  };
+}
 
 function HeartBurst({ active }: { active: boolean }) {
   if (!active) return null;
@@ -44,6 +137,46 @@ function RomanticPopup({ onClose }: { onClose: () => void }) {
   const [surprisePlaying, setSurprisePlaying] = useState(false);
   const [surpriseRevealed, setSurpriseRevealed] = useState(false);
   const surpriseAudioRef = useRef<HTMLAudioElement>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const melodyStopRef = useRef<(() => void) | null>(null);
+
+  // Cleanup melody & audio context on unmount
+  useEffect(() => {
+    return () => {
+      if (melodyStopRef.current) {
+        melodyStopRef.current();
+        melodyStopRef.current = null;
+      }
+      if (audioCtxRef.current) {
+        audioCtxRef.current.close().catch(() => {});
+        audioCtxRef.current = null;
+      }
+    };
+  }, []);
+
+  const startMelody = () => {
+    // Create fresh AudioContext each time
+    if (audioCtxRef.current) {
+      try {
+        audioCtxRef.current.close();
+      } catch (_) {}
+    }
+    const ctx = new AudioContext();
+    audioCtxRef.current = ctx;
+    const stopFn = createRomanticMelody(ctx);
+    melodyStopRef.current = stopFn;
+  };
+
+  const stopMelody = () => {
+    if (melodyStopRef.current) {
+      melodyStopRef.current();
+      melodyStopRef.current = null;
+    }
+    if (audioCtxRef.current) {
+      audioCtxRef.current.close().catch(() => {});
+      audioCtxRef.current = null;
+    }
+  };
 
   const handleSurprise = () => {
     const audio = surpriseAudioRef.current;
@@ -52,16 +185,22 @@ function RomanticPopup({ onClose }: { onClose: () => void }) {
     if (!surprisePlaying) {
       // Stop background music
       window.dispatchEvent(new CustomEvent("stopBackgroundMusic"));
+      // Start surprise audio
       const p = audio.play();
       if (p !== undefined) {
         p.then(() => setSurprisePlaying(true)).catch(() => {});
       } else {
         setSurprisePlaying(true);
       }
+      // Start soft background melody
+      startMelody();
     } else {
+      // Pause surprise audio
       audio.pause();
       audio.currentTime = 0;
       setSurprisePlaying(false);
+      // Stop melody
+      stopMelody();
       // Resume background music
       window.dispatchEvent(new CustomEvent("resumeBackgroundMusic"));
     }
@@ -74,6 +213,8 @@ function RomanticPopup({ onClose }: { onClose: () => void }) {
       audio.currentTime = 0;
     }
     setSurprisePlaying(false);
+    // Stop melody
+    stopMelody();
     // Resume background music
     window.dispatchEvent(new CustomEvent("resumeBackgroundMusic"));
     onClose();
