@@ -28,16 +28,6 @@ const questions = [
     isSpecial: false,
   },
   {
-    id: "q6",
-    question: "How do you think we can keep the passion alive in our marriage?",
-    isSpecial: false,
-  },
-  {
-    id: "q7",
-    question: "Is there anything I can do to make you feel more appreciated?",
-    isSpecial: false,
-  },
-  {
     id: "q8",
     question:
       "How do you think we can best communicate our emotions to each other?",
