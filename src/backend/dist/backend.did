@@ -3,10 +3,18 @@ type Wish =
    message: text;
    name: text;
  };
+type Reply = 
+ record {
+   id: nat;
+   message: text;
+   timestamp: int;
+ };
 service : {
   addWish: (name: text, message: text) -> ();
+  getAllReplies: () -> (vec Reply) query;
   getAllWishes: () -> (vec Wish) query;
   getBirthdayDate: () -> (text) query;
   getWish: (name: text) -> (Wish) query;
+  saveReply: (message: text) -> (nat);
   setBirthdayDate: (newDate: text) -> ();
 }

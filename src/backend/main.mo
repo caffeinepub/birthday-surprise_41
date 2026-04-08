@@ -3,6 +3,7 @@ import List "mo:core/List";
 import Iter "mo:core/Iter";
 import Order "mo:core/Order";
 import Runtime "mo:core/Runtime";
+import Time "mo:core/Time";
 
 actor {
   type Wish = {
@@ -19,7 +20,15 @@ actor {
     };
   };
 
+  type Reply = {
+    id : Nat;
+    message : Text;
+    timestamp : Int;
+  };
+
   let wishes = List.empty<Wish>();
+  let replies = List.empty<Reply>();
+  var nextReplyId : Nat = 0;
 
   var birthdayDate : Text = "unknown";
 
@@ -48,5 +57,21 @@ actor {
       case (null) { Runtime.trap("Wish not found") };
       case (?wish) { wish };
     };
+  };
+
+  public shared func saveReply(message : Text) : async Nat {
+    let id = nextReplyId;
+    nextReplyId += 1;
+    let reply : Reply = {
+      id;
+      message;
+      timestamp = Time.now();
+    };
+    replies.add(reply);
+    id;
+  };
+
+  public query func getAllReplies() : async [Reply] {
+    replies.values().toArray();
   };
 };

@@ -8,26 +8,40 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
+export const Reply = IDL.Record({
+  'id' : IDL.Nat,
+  'message' : IDL.Text,
+  'timestamp' : IDL.Int,
+});
 export const Wish = IDL.Record({ 'name' : IDL.Text, 'message' : IDL.Text });
 
 export const idlService = IDL.Service({
   'addWish' : IDL.Func([IDL.Text, IDL.Text], [], []),
+  'getAllReplies' : IDL.Func([], [IDL.Vec(Reply)], ['query']),
   'getAllWishes' : IDL.Func([], [IDL.Vec(Wish)], ['query']),
   'getBirthdayDate' : IDL.Func([], [IDL.Text], ['query']),
   'getWish' : IDL.Func([IDL.Text], [Wish], ['query']),
+  'saveReply' : IDL.Func([IDL.Text], [IDL.Nat], []),
   'setBirthdayDate' : IDL.Func([IDL.Text], [], []),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
+  const Reply = IDL.Record({
+    'id' : IDL.Nat,
+    'message' : IDL.Text,
+    'timestamp' : IDL.Int,
+  });
   const Wish = IDL.Record({ 'name' : IDL.Text, 'message' : IDL.Text });
   
   return IDL.Service({
     'addWish' : IDL.Func([IDL.Text, IDL.Text], [], []),
+    'getAllReplies' : IDL.Func([], [IDL.Vec(Reply)], ['query']),
     'getAllWishes' : IDL.Func([], [IDL.Vec(Wish)], ['query']),
     'getBirthdayDate' : IDL.Func([], [IDL.Text], ['query']),
     'getWish' : IDL.Func([IDL.Text], [Wish], ['query']),
+    'saveReply' : IDL.Func([IDL.Text], [IDL.Nat], []),
     'setBirthdayDate' : IDL.Func([IDL.Text], [], []),
   });
 };

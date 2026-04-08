@@ -93,11 +93,18 @@ export interface Wish {
     name: string;
     message: string;
 }
+export interface Reply {
+    id: bigint;
+    message: string;
+    timestamp: bigint;
+}
 export interface backendInterface {
     addWish(name: string, message: string): Promise<void>;
+    getAllReplies(): Promise<Array<Reply>>;
     getAllWishes(): Promise<Array<Wish>>;
     getBirthdayDate(): Promise<string>;
     getWish(name: string): Promise<Wish>;
+    saveReply(message: string): Promise<bigint>;
     setBirthdayDate(newDate: string): Promise<void>;
 }
 export class Backend implements backendInterface {
@@ -113,6 +120,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.addWish(arg0, arg1);
+            return result;
+        }
+    }
+    async getAllReplies(): Promise<Array<Reply>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAllReplies();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAllReplies();
             return result;
         }
     }
@@ -155,6 +176,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.getWish(arg0);
+            return result;
+        }
+    }
+    async saveReply(arg0: string): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.saveReply(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.saveReply(arg0);
             return result;
         }
     }

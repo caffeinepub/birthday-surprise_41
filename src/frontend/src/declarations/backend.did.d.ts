@@ -10,12 +10,19 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface Reply {
+  'id' : bigint,
+  'message' : string,
+  'timestamp' : bigint,
+}
 export interface Wish { 'name' : string, 'message' : string }
 export interface _SERVICE {
   'addWish' : ActorMethod<[string, string], undefined>,
+  'getAllReplies' : ActorMethod<[], Array<Reply>>,
   'getAllWishes' : ActorMethod<[], Array<Wish>>,
   'getBirthdayDate' : ActorMethod<[], string>,
   'getWish' : ActorMethod<[string], Wish>,
+  'saveReply' : ActorMethod<[string], bigint>,
   'setBirthdayDate' : ActorMethod<[string], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;

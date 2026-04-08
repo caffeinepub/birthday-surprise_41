@@ -1,3 +1,4 @@
+import { useGetAllReplies, useSaveReply } from "@/hooks/useQueries";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { OrnamentedCard } from "./OrnamentedCard";
@@ -12,9 +13,228 @@ function getRandomNoPosition() {
 const PARTICLES = Array.from({ length: 12 }, (_, i) => i);
 const FLOAT_HEARTS = Array.from({ length: 14 }, (_, i) => i);
 
+// ─── Surprise Blast ──────────────────────────────────────────────────────────
+const CONFETTI_COUNT = 55;
+const SPARKLE_COUNT = 22;
+const HEART_COUNT = 14;
+
+const CONFETTI_COLORS = [
+  "#ff3d6e",
+  "#ff9bcb",
+  "#ffd700",
+  "#ff6eb4",
+  "#fff0f5",
+  "#ff4fa0",
+  "#ffe066",
+  "#d946ef",
+  "#fb7185",
+  "#f9a8d4",
+  "#fbbf24",
+  "#e879f9",
+];
+const CONFETTI_SHAPES = ["rect", "circle", "strip"] as const;
+
+interface BlastParticle {
+  id: number;
+  type: "confetti" | "sparkle" | "heart";
+  x: number; // vw % from center
+  y: number; // vh % from center
+  color: string;
+  angle: number; // deg
+  dist: number; // travel distance in vw
+  size: number;
+  rot: number; // end rotation deg
+  dur: number; // seconds
+  delay: number;
+  shape?: (typeof CONFETTI_SHAPES)[number];
+  symbol?: string;
+}
+
+function buildBlastParticles(): BlastParticle[] {
+  const particles: BlastParticle[] = [];
+  let id = 0;
+
+  // Confetti pieces — scatter in all directions
+  for (let i = 0; i < CONFETTI_COUNT; i++) {
+    const angle = Math.random() * 360;
+    const dist = 18 + Math.random() * 42; // 18–60 vw
+    const rad = (angle * Math.PI) / 180;
+    particles.push({
+      id: id++,
+      type: "confetti",
+      x: Math.cos(rad) * dist,
+      y: Math.sin(rad) * dist,
+      color:
+        CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+      angle,
+      dist,
+      size: 6 + Math.random() * 10,
+      rot:
+        360 *
+        (1 + Math.floor(Math.random() * 3)) *
+        (Math.random() > 0.5 ? 1 : -1),
+      dur: 1.4 + Math.random() * 1.2,
+      delay: Math.random() * 0.15,
+      shape:
+        CONFETTI_SHAPES[Math.floor(Math.random() * CONFETTI_SHAPES.length)],
+    });
+  }
+
+  // Sparkle stars
+  for (let i = 0; i < SPARKLE_COUNT; i++) {
+    const angle = Math.random() * 360;
+    const dist = 8 + Math.random() * 30;
+    const rad = (angle * Math.PI) / 180;
+    particles.push({
+      id: id++,
+      type: "sparkle",
+      x: Math.cos(rad) * dist,
+      y: Math.sin(rad) * dist,
+      color: i % 3 === 0 ? "#fff7ae" : i % 3 === 1 ? "#ffd700" : "#fffbe6",
+      angle,
+      dist,
+      size: 10 + Math.random() * 14,
+      rot: 0,
+      dur: 0.9 + Math.random() * 0.8,
+      delay: Math.random() * 0.2,
+      symbol: ["✦", "✧", "★", "✨", "⭐"][Math.floor(Math.random() * 5)],
+    });
+  }
+
+  // Hearts
+  for (let i = 0; i < HEART_COUNT; i++) {
+    const angle = Math.random() * 360;
+    const dist = 10 + Math.random() * 25;
+    const rad = (angle * Math.PI) / 180;
+    particles.push({
+      id: id++,
+      type: "heart",
+      x: Math.cos(rad) * dist,
+      y: Math.sin(rad) * dist,
+      color: ["#ff3d6e", "#ff6eb4", "#ffd700", "#d946ef", "#fb7185"][
+        Math.floor(Math.random() * 5)
+      ],
+      angle,
+      dist,
+      size: 14 + Math.random() * 16,
+      rot: (Math.random() - 0.5) * 60,
+      dur: 1.2 + Math.random() * 1.0,
+      delay: Math.random() * 0.18,
+      symbol: "♥",
+    });
+  }
+
+  return particles;
+}
+
+function ConfettiShape({ p }: { p: BlastParticle }) {
+  if (p.shape === "circle") {
+    return (
+      <div
+        style={{
+          width: p.size,
+          height: p.size,
+          borderRadius: "50%",
+          background: p.color,
+        }}
+      />
+    );
+  }
+  if (p.shape === "strip") {
+    return (
+      <div
+        style={{
+          width: p.size * 0.35,
+          height: p.size * 2.2,
+          borderRadius: 2,
+          background: p.color,
+        }}
+      />
+    );
+  }
+  // rect (default)
+  return (
+    <div
+      style={{
+        width: p.size,
+        height: p.size * 0.6,
+        borderRadius: 2,
+        background: p.color,
+      }}
+    />
+  );
+}
+
+function SurpriseBlast({ active }: { active: boolean }) {
+  const [particles] = useState<BlastParticle[]>(() => buildBlastParticles());
+  if (!active) return null;
+
+  return (
+    <div
+      className="fixed inset-0 pointer-events-none overflow-hidden"
+      style={{ zIndex: 99999 }}
+      aria-hidden
+    >
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          initial={{
+            x: "-50%",
+            y: "-50%",
+            opacity: 1,
+            scale: 0.4,
+            rotate: 0,
+          }}
+          animate={{
+            x: `calc(-50% + ${p.x}vw)`,
+            y: `calc(-50% + ${p.y}vh)`,
+            opacity: 0,
+            scale: p.type === "confetti" ? [0.4, 1.2, 0.8] : [0.4, 1.4, 0.6],
+            rotate: p.rot,
+          }}
+          transition={{
+            duration: p.dur,
+            delay: p.delay,
+            ease: [0.2, 0.8, 0.4, 1],
+          }}
+          style={{
+            position: "absolute",
+            left: "50%",
+            top: "50%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {p.type === "confetti" ? (
+            <ConfettiShape p={p} />
+          ) : (
+            <span
+              style={{
+                fontSize: p.size,
+                color: p.color,
+                lineHeight: 1,
+                textShadow:
+                  p.type === "sparkle"
+                    ? `0 0 8px ${p.color}, 0 0 16px ${p.color}`
+                    : `0 0 6px ${p.color}`,
+                display: "block",
+                userSelect: "none",
+              }}
+            >
+              {p.symbol}
+            </span>
+          )}
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
 const BG_SONG_SRC =
   "/assets/videoplayback-019d6dc8-71e3-747d-a040-f95e58145707.mp4";
 const BG_SONG_VOLUME = 0.3;
+const VOICE_SRC = "/assets/my_voice-019d6dee-e1d7-72f2-a626-4108f4b0e457.mp4";
 
 function HeartBurst({ active }: { active: boolean }) {
   if (!active) return null;
@@ -44,20 +264,101 @@ function HeartBurst({ active }: { active: boolean }) {
   );
 }
 
+// ─── Piano Melody via Web Audio API ─────────────────────────────────────────
+// Gentle romantic chord progression: C maj → A min → F maj → G maj
+// Each chord plays as soft overlapping sine/triangle tones at low volume
+const PIANO_CHORDS: number[][] = [
+  [261.63, 329.63, 392.0], // C major  (C4, E4, G4)
+  [220.0, 261.63, 329.63], // A minor  (A3, C4, E4)
+  [174.61, 220.0, 261.63], // F major  (F3, A3, C4)
+  [196.0, 246.94, 293.66], // G major  (G3, B3, D4)
+];
+const PIANO_CHORD_DURATION = 1.8; // seconds per chord
+const PIANO_GAIN = 0.09; // gentle background volume
+
+function startPianoMelody(ctx: AudioContext) {
+  const masterGain = ctx.createGain();
+  masterGain.gain.setValueAtTime(0, ctx.currentTime);
+  masterGain.gain.linearRampToValueAtTime(PIANO_GAIN, ctx.currentTime + 0.5);
+  masterGain.connect(ctx.destination);
+
+  const totalChords = PIANO_CHORDS.length;
+  const loopDuration = totalChords * PIANO_CHORD_DURATION;
+
+  const scheduleLoop = (startAt: number) => {
+    for (let ci = 0; ci < totalChords; ci++) {
+      const chordStart = startAt + ci * PIANO_CHORD_DURATION;
+      const chord = PIANO_CHORDS[ci];
+      for (let ni = 0; ni < chord.length; ni++) {
+        const freq = chord[ni];
+        const osc = ctx.createOscillator();
+        const noteGain = ctx.createGain();
+        // Alternate sine/triangle for softer, blended tone
+        osc.type = ni === 0 ? "triangle" : "sine";
+        osc.frequency.setValueAtTime(freq, chordStart);
+        // Soft attack/release envelope per note
+        noteGain.gain.setValueAtTime(0, chordStart);
+        noteGain.gain.linearRampToValueAtTime(1.0, chordStart + 0.18);
+        noteGain.gain.setValueAtTime(
+          1.0,
+          chordStart + PIANO_CHORD_DURATION * 0.55,
+        );
+        noteGain.gain.linearRampToValueAtTime(
+          0,
+          chordStart + PIANO_CHORD_DURATION * 0.95,
+        );
+        osc.connect(noteGain);
+        noteGain.connect(masterGain);
+        osc.start(chordStart);
+        osc.stop(chordStart + PIANO_CHORD_DURATION);
+      }
+    }
+  };
+
+  // Schedule two loops ahead so melody continues seamlessly
+  scheduleLoop(ctx.currentTime);
+  scheduleLoop(ctx.currentTime + loopDuration);
+
+  // Re-schedule every loopDuration to keep it going
+  const intervalId = window.setInterval(() => {
+    if (ctx.state === "closed") {
+      window.clearInterval(intervalId);
+      return;
+    }
+    scheduleLoop(ctx.currentTime + loopDuration);
+  }, loopDuration * 1000);
+
+  return () => window.clearInterval(intervalId);
+}
+
 function RomanticPopup({ onClose }: { onClose: () => void }) {
   const [surprisePlaying, setSurprisePlaying] = useState(false);
   const [surpriseRevealed, setSurpriseRevealed] = useState(false);
+  const [showSurpriseBlast, setShowSurpriseBlast] = useState(false);
+  const [blastKey, setBlastKey] = useState(0);
+  const [replyText, setReplyText] = useState("");
+  const [replySaved, setReplySaved] = useState(false);
   const surpriseAudioRef = useRef<HTMLAudioElement>(null);
   const bgSongRef = useRef<HTMLAudioElement>(null);
+  const voiceAudioRef = useRef<HTMLAudioElement>(null);
+  const pianoCtxRef = useRef<AudioContext | null>(null);
+  const pianoCleanupRef = useRef<(() => void) | null>(null);
+
+  const { data: replies = [] } = useGetAllReplies();
+  const saveReply = useSaveReply();
 
   // Set background song volume on mount
   useEffect(() => {
     if (bgSongRef.current) {
       bgSongRef.current.volume = BG_SONG_VOLUME;
     }
+    if (voiceAudioRef.current) {
+      voiceAudioRef.current.volume = 1.0;
+      voiceAudioRef.current.loop = false;
+    }
   }, []);
 
-  // Cleanup on unmount — stop both audios
+  // Cleanup on unmount — stop all audio including piano
   useEffect(() => {
     return () => {
       const bg = bgSongRef.current;
@@ -70,15 +371,53 @@ function RomanticPopup({ onClose }: { onClose: () => void }) {
         sa.pause();
         sa.currentTime = 0;
       }
+      const va = voiceAudioRef.current;
+      if (va) {
+        va.pause();
+        va.currentTime = 0;
+      }
+      if (pianoCleanupRef.current) pianoCleanupRef.current();
+      if (pianoCtxRef.current && pianoCtxRef.current.state !== "closed") {
+        pianoCtxRef.current.close().catch(() => {});
+      }
     };
   }, []);
+
+  const stopPiano = () => {
+    if (pianoCleanupRef.current) {
+      pianoCleanupRef.current();
+      pianoCleanupRef.current = null;
+    }
+    if (pianoCtxRef.current && pianoCtxRef.current.state !== "closed") {
+      pianoCtxRef.current.close().catch(() => {});
+      pianoCtxRef.current = null;
+    }
+  };
+
+  const handleSaveReply = async () => {
+    const trimmed = replyText.trim();
+    if (!trimmed) return;
+    try {
+      await saveReply.mutateAsync(trimmed);
+      setReplyText("");
+      setReplySaved(true);
+      setTimeout(() => setReplySaved(false), 4000);
+    } catch {
+      // fail silently — romantic UX, no error toast
+    }
+  };
 
   const handleSurprise = () => {
     const audio = surpriseAudioRef.current;
     const bgSong = bgSongRef.current;
+    const voice = voiceAudioRef.current;
     if (!audio) return;
     setSurpriseRevealed(true);
     if (!surprisePlaying) {
+      // Fire the confetti + sparkle blast (one-shot)
+      setBlastKey((k) => k + 1);
+      setShowSurpriseBlast(true);
+      setTimeout(() => setShowSurpriseBlast(false), 3000);
       // Stop background music
       window.dispatchEvent(new CustomEvent("stopBackgroundMusic"));
       // Start surprise audio
@@ -88,22 +427,45 @@ function RomanticPopup({ onClose }: { onClose: () => void }) {
       } else {
         setSurprisePlaying(true);
       }
+      // Start Kanchan's voice message at full volume
+      if (voice) {
+        voice.volume = 1.0;
+        voice.currentTime = 0;
+        voice.play().catch(() => {});
+      }
       // Start background MP4 song at low volume
       if (bgSong) {
         bgSong.volume = BG_SONG_VOLUME;
         bgSong.currentTime = 0;
         bgSong.play().catch(() => {});
       }
+      // ✨ Start soft romantic piano melody via Web Audio API
+      stopPiano(); // clear any previous instance
+      try {
+        const ctx = new AudioContext();
+        pianoCtxRef.current = ctx;
+        const cleanup = startPianoMelody(ctx);
+        pianoCleanupRef.current = cleanup;
+      } catch (_e) {
+        // Web Audio not available — fail silently
+      }
     } else {
       // Pause surprise audio
       audio.pause();
       audio.currentTime = 0;
       setSurprisePlaying(false);
+      // Stop voice
+      if (voice) {
+        voice.pause();
+        voice.currentTime = 0;
+      }
       // Stop bg song
       if (bgSong) {
         bgSong.pause();
         bgSong.currentTime = 0;
       }
+      // Stop piano melody
+      stopPiano();
       // Resume background music
       window.dispatchEvent(new CustomEvent("resumeBackgroundMusic"));
     }
@@ -115,12 +477,20 @@ function RomanticPopup({ onClose }: { onClose: () => void }) {
       audio.pause();
       audio.currentTime = 0;
     }
+    // Stop voice
+    const voice = voiceAudioRef.current;
+    if (voice) {
+      voice.pause();
+      voice.currentTime = 0;
+    }
     // Stop bg song
     const bgSong = bgSongRef.current;
     if (bgSong) {
       bgSong.pause();
       bgSong.currentTime = 0;
     }
+    // Stop piano melody
+    stopPiano();
     setSurprisePlaying(false);
     // Resume background music
     window.dispatchEvent(new CustomEvent("resumeBackgroundMusic"));
@@ -158,6 +528,16 @@ function RomanticPopup({ onClose }: { onClose: () => void }) {
         playsInline
         loop
       />
+      {/* Hidden voice message from Kanchan */}
+      {/* biome-ignore lint/a11y/useMediaCaption: personal voice message */}
+      <audio ref={voiceAudioRef} src={VOICE_SRC} preload="auto" playsInline />
+
+      {/* Confetti + sparkle blast on Surprise click */}
+      <AnimatePresence>
+        {showSurpriseBlast && (
+          <SurpriseBlast key={blastKey} active={showSurpriseBlast} />
+        )}
+      </AnimatePresence>
 
       {/* Floating hearts background */}
       <div
@@ -196,7 +576,7 @@ function RomanticPopup({ onClose }: { onClose: () => void }) {
         exit={{ scale: 0.7, opacity: 0, y: 40 }}
         transition={{ type: "spring", stiffness: 280, damping: 22 }}
         onClick={(e) => e.stopPropagation()}
-        className="relative max-w-md w-full rounded-3xl text-center overflow-hidden"
+        className="relative max-w-md w-full rounded-3xl text-center overflow-hidden overflow-y-auto"
         style={{
           background:
             "linear-gradient(145deg, oklch(0.18 0.06 5), oklch(0.14 0.04 340))",
@@ -204,6 +584,7 @@ function RomanticPopup({ onClose }: { onClose: () => void }) {
           boxShadow:
             "0 0 60px oklch(0.65 0.28 5 / 0.35), 0 0 120px oklch(0.55 0.22 5 / 0.15), inset 0 0 40px oklch(0.72 0.18 40 / 0.07)",
           padding: "2.5rem 2rem",
+          maxHeight: "90vh",
         }}
       >
         {/* Close button top-right */}
@@ -403,6 +784,157 @@ function RomanticPopup({ onClose }: { onClose: () => void }) {
             )}
           </AnimatePresence>
         </motion.div>
+
+        {/* ── Reply Box (shown after Surprise is clicked) ── */}
+        <AnimatePresence>
+          {surpriseRevealed && (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="mt-6 w-full"
+              data-ocid="surprise_reply.section"
+            >
+              {/* Separator */}
+              <div className="flex items-center gap-2 mb-4">
+                <div
+                  className="h-px flex-1"
+                  style={{
+                    background:
+                      "linear-gradient(to right, transparent, oklch(0.72 0.18 40 / 0.35))",
+                  }}
+                />
+                <span className="text-pink-300 text-xs">✦ ♥ ✦</span>
+                <div
+                  className="h-px flex-1"
+                  style={{
+                    background:
+                      "linear-gradient(to left, transparent, oklch(0.72 0.18 40 / 0.35))",
+                  }}
+                />
+              </div>
+
+              {/* Heading */}
+              <motion.p
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1, duration: 0.4 }}
+                className="font-dancing text-xl mb-3"
+                style={{ color: "oklch(0.88 0.16 5)" }}
+              >
+                💌 Aap ka jawab mera tohfa hai...
+              </motion.p>
+
+              {/* Textarea */}
+              <motion.textarea
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2, duration: 0.4 }}
+                data-ocid="surprise_reply.textarea"
+                rows={3}
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                placeholder="Yahan aap apna dil ki baat likhein... ♥"
+                className="w-full rounded-2xl resize-none text-base font-dancing placeholder:text-pink-300/50 focus:outline-none transition-all duration-200"
+                style={{
+                  background: "oklch(0.12 0.04 5 / 0.85)",
+                  border: "1.5px solid oklch(0.72 0.20 5 / 0.45)",
+                  color: "oklch(0.92 0.10 5)",
+                  padding: "0.875rem 1.1rem",
+                  boxShadow: "0 0 0 0 transparent",
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor =
+                    "oklch(0.72 0.20 5 / 0.85)";
+                  e.currentTarget.style.boxShadow =
+                    "0 0 12px oklch(0.65 0.22 5 / 0.3)";
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor =
+                    "oklch(0.72 0.20 5 / 0.45)";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
+              />
+
+              {/* Save button + confirmation */}
+              <div className="flex items-center justify-between mt-3 gap-3">
+                <AnimatePresence>
+                  {replySaved && (
+                    <motion.p
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.35 }}
+                      className="font-dancing text-sm flex-1"
+                      style={{ color: "oklch(0.82 0.16 140)" }}
+                    >
+                      ✓ Aap ka jawab save ho gaya... ♥ Kanchan padh legi!
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+                <motion.button
+                  type="button"
+                  data-ocid="surprise_reply.save_button"
+                  whileTap={{ scale: 0.92 }}
+                  whileHover={{ scale: 1.05 }}
+                  disabled={saveReply.isPending || !replyText.trim()}
+                  onClick={handleSaveReply}
+                  className="ml-auto px-6 py-2 rounded-full font-dancing text-base font-semibold transition-all duration-200 disabled:opacity-50"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, oklch(0.62 0.22 5), oklch(0.52 0.20 340))",
+                    color: "oklch(0.97 0.02 5)",
+                    border: "1.5px solid oklch(0.72 0.18 5 / 0.5)",
+                    boxShadow: "0 4px 18px oklch(0.55 0.22 5 / 0.35)",
+                    flexShrink: 0,
+                  }}
+                >
+                  {saveReply.isPending ? "Saving..." : "Save ♥"}
+                </motion.button>
+              </div>
+
+              {/* Previously saved replies */}
+              {replies.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3, duration: 0.5 }}
+                  className="mt-5 space-y-3 max-h-48 overflow-y-auto pr-1"
+                  data-ocid="surprise_reply.replies_list"
+                >
+                  <p
+                    className="font-dancing text-sm mb-2"
+                    style={{ color: "oklch(0.72 0.14 40)" }}
+                  >
+                    ✦ Aap ke baad ke jawaab ✦
+                  </p>
+                  {[...replies].reverse().map((reply, i) => (
+                    <motion.div
+                      key={reply.id.toString()}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.06, duration: 0.35 }}
+                      className="rounded-xl px-4 py-3 text-left"
+                      style={{
+                        background: "oklch(0.14 0.05 5 / 0.7)",
+                        border: "1px solid oklch(0.72 0.18 40 / 0.3)",
+                      }}
+                      data-ocid={`surprise_reply.reply.${i + 1}`}
+                    >
+                      <p
+                        className="font-dancing text-base leading-snug"
+                        style={{ color: "oklch(0.88 0.10 5)" }}
+                      >
+                        "{reply.message}"
+                      </p>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Bottom divider */}
         <div className="flex items-center justify-center gap-2 mt-6">
